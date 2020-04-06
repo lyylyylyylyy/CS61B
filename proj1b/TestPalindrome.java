@@ -19,14 +19,14 @@ public class TestPalindrome {
     }
 
     @Test
-    public void testisPalindrome(){
+    public void testisPalindrome() {
         assertTrue(palindrome.isPalindrome("aa"));
         assertFalse(palindrome.isPalindrome("xpp"));
         assertTrue(palindrome.isPalindrome("racecar"));
     }
 
     @Test
-    public void testisPalindrome1(){
+    public void testisPalindromeCc() {
         OffByOne obo = new OffByOne();
         assertTrue(palindrome.isPalindrome("ab", obo));
         assertTrue(palindrome.isPalindrome("yyxz", obo));
