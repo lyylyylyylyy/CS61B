@@ -1,7 +1,5 @@
 import org.junit.Test;
 
-import java.util.Deque;
-
 import static org.junit.Assert.*;
 
 public class TestPalindrome {
