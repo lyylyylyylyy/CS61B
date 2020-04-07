@@ -8,10 +8,6 @@ public class OffByN implements CharacterComparator {
 
     @Override
     public boolean equalChars(char x, char y) {
-        int difference = x - y;
-        if (Math.abs(difference) == diff){
-            return true;
-        }
-        return false;
+        return Math.abs(x - y) == diff;
     }
 }

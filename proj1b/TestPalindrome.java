@@ -26,7 +26,7 @@ public class TestPalindrome {
     @Test
     public void testisPalindromeCc() {
         OffByOne obo = new OffByOne();
-        assertTrue(palindrome.isPalindrome("ab", obo));
+        assertTrue(palindrome.isPalindrome("detrude", obo));
         assertTrue(palindrome.isPalindrome("yyxz", obo));
         assertFalse(palindrome.isPalindrome("zxzx", obo));
         assertFalse(palindrome.isPalindrome("aa", obo));

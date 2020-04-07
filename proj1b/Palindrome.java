@@ -27,7 +27,7 @@ public class Palindrome {
         int len = word.length();
         int x = (int) Math.floor(word.length() / 2);
 
-        for (int idx = 0; idx <= x; idx++) {
+        for (int idx = 0; idx < x; idx++) {
             if (!cc.equalChars(word.charAt(idx), word.charAt(len-idx-1))) {
                 return false;
             }
@@ -35,5 +35,7 @@ public class Palindrome {
         return true;
 
     }
+
+
 }
 
