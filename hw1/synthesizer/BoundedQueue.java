@@ -18,9 +18,19 @@ public interface BoundedQueue<T> extends Iterable<T> {
     T peek();
 
     /*is the buffer empty (fillCount equals zero)?*/
-    boolean isEmpty();
+    default boolean isEmpty() {
+        if (fillCount() == 0) {
+            return true;
+        }
+        return false;
+    };
 
-    boolean isFull();        // is the buffer full (fillCount is same as capacity)?
+    default boolean isFull() {
+        if (fillCount() == capacity()) {
+            return true;
+        }
+        return false;
+    };        // is the buffer full (fillCount is same as capacity)?
 
     @Override
     Iterator<T> iterator();
