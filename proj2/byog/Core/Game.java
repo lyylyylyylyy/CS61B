@@ -2,12 +2,50 @@ package byog.Core;
 
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
+import byog.TileEngine.Tileset;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import java.awt.Font;
+
+import edu.princeton.cs.introcs.StdDraw;
 
 public class Game {
-    TERenderer ter = new TERenderer();
+
     /* Feel free to change the width and height. */
     public static final int WIDTH = 80;
     public static final int HEIGHT = 30;
+    private static final int EntryX = 40;
+    private static final int EntryY = 5;
+
+    private static final String North = "w";
+    private static final String East = "d";
+    private static final String South = "s";
+    private static final String West = "a";
+
+    private static final String Path = "saved.txt";
+    private static final int WelcomeWidth = 600;
+    private static final int WelcomeHeight = 800;
+
+    private boolean setup = true;
+    private boolean newGame = false;
+
+    private String seedString = "";
+
+    TERenderer ter = new TERenderer();
+    private TETile[][] world;
+    private int playerX;
+    private int playerY;
+
+    private void switchSetupMode() {
+
+    }
 
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
