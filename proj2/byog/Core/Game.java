@@ -35,6 +35,7 @@ public class Game {
 
     private boolean setup = true;
     private boolean newGame = false;
+    private boolean quit = false;
 
     private String seedString = "";
 
@@ -47,6 +48,13 @@ public class Game {
 
     }
 
+    private void switchNewGameMode() {
+
+    }
+
+    private void switchQuitMode() {
+
+    }
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
      */
@@ -72,5 +80,10 @@ public class Game {
 
         TETile[][] finalWorldFrame = null;
         return finalWorldFrame;
+    }
+
+    public static void main(String[] args) {
+        Game game = new Game();
+        game.playWithKeyboard();
     }
 }
