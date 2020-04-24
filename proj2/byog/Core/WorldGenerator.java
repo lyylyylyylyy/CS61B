@@ -4,14 +4,12 @@ import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 
-import javax.swing.text.Position;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.List;
 import java.util.LinkedList;
+import java.io.Serializable;
 
-
-class WorldGenerator {
+class WorldGenerator implements Serializable{
     private static final int MAXWIDTH = 6;
     private static final int MAXHEIGHT = 8;
 
@@ -344,6 +342,44 @@ class WorldGenerator {
         makeRoom(positions);
         makeInitialEntrance(initialX, initialY);
         exit2(positions, 1);
+
+        for (int i = 1; i < width - 1; i++) {
+            for (int j = 1; j < height - 1; j++) {
+                if (world[i][j] == Tileset.FLOOR && world[i - 1][j] == Tileset.FLOOR && world[i][j - 1] == Tileset.NOTHING && world[i + 1][j] == Tileset.NOTHING && world[i][j + 1] == Tileset.NOTHING) {
+                    world[i][j] = Tileset.NOTHING;
+                }
+
+                if (world[i][j] == Tileset.FLOOR && world[i - 1][j] == Tileset.NOTHING && world[i][j - 1] == Tileset.FLOOR && world[i + 1][j] == Tileset.NOTHING && world[i][j + 1] == Tileset.NOTHING) {
+                    world[i][j] = Tileset.NOTHING;
+                }
+
+                if (world[i][j] == Tileset.FLOOR && world[i - 1][j] == Tileset.NOTHING && world[i][j - 1] == Tileset.NOTHING && world[i + 1][j] == Tileset.FLOOR && world[i][j + 1] == Tileset.NOTHING) {
+                    world[i][j] = Tileset.NOTHING;
+                }
+
+                if (world[i][j] == Tileset.FLOOR && world[i - 1][j] == Tileset.NOTHING && world[i][j - 1] == Tileset.NOTHING && world[i + 1][j] == Tileset.NOTHING && world[i][j + 1] == Tileset.FLOOR) {
+                    world[i][j] = Tileset.NOTHING;
+                }
+
+                if (world[i][j] == Tileset.FLOOR && (world[i - 1][j] == Tileset.NOTHING || world[i][j - 1] == Tileset.NOTHING || world[i + 1][j] == Tileset.NOTHING || world[i][j + 1] == Tileset.NOTHING)) {
+                    world[i][j] = Tileset.WALL;
+                }
+            }
+        }
+
+        if (world[initialX - 1][initialY] != Tileset.NOTHING && world[initialX][initialY - 1] != Tileset.NOTHING && world[initialX + 1][initialY] != Tileset.NOTHING && world[initialX][initialY + 1] != Tileset.NOTHING) {
+            world[initialX][initialY] = Tileset.WALL;
+            int i = initialX;
+            int j = initialY;
+            while (i < width && j < height) {
+                if (world[i][j] == Tileset.WALL && (world[i - 1][j] == Tileset.NOTHING || world[i][j - 1] == Tileset.NOTHING || world[i + 1][j] == Tileset.NOTHING || world[i][j + 1] == Tileset.NOTHING)) {
+                    world[i][j] = Tileset.LOCKED_DOOR;
+                    break;
+                }
+                i++;
+                j++;
+            }
+        }
         return world;
     }
 
@@ -353,7 +389,7 @@ class WorldGenerator {
 
         TERenderer ter = new TERenderer();
         ter.initialize(w, h);
-        WorldGenerator wg = new WorldGenerator(w, h, 40, 5, 42);
+        WorldGenerator wg = new WorldGenerator(w, h, 40, 5, 44);
         wg.initialize();
         wg.generate();
         // System.out.println(TETile.toString(wg.world));

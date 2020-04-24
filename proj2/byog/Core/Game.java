@@ -11,12 +11,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Random;
+import java.io.Serializable;
 
 import java.awt.Font;
 
 import edu.princeton.cs.introcs.StdDraw;
 
-public class Game {
+public class Game implements Serializable{
 
     /* Feel free to change the width and height. */
     public static final int WIDTH = 80;
@@ -29,7 +31,7 @@ public class Game {
     private static final String South = "s";
     private static final String West = "a";
 
-    private static final String Path = "saved.txt";
+    private static final String Path = "./saved.txt";
     private static final int WelcomeWidth = 600;
     private static final int WelcomeHeight = 800;
 
@@ -38,6 +40,8 @@ public class Game {
     private boolean quit = false;
 
     private String seedString = "";
+    private Long seed;
+    private Random random;
 
     TERenderer ter = new TERenderer();
     private TETile[][] world;
@@ -124,7 +128,7 @@ public class Game {
         if (seedString.equals("")) {
             wg = new WorldGenerator(WIDTH, HEIGHT, EntryX, EntryY);
         } else {
-            long seed = Long.parseLong(seedString);
+            seed = Long.parseLong(seedString);
             wg = new WorldGenerator(WIDTH, HEIGHT, EntryX, EntryY, seed);
         }
 
@@ -132,36 +136,50 @@ public class Game {
         world = wg.generate();
 
         // setup a player
-        world[EntryX][EntryY + 1] = Tileset.PLAYER;
-        playerX = EntryX;
-        playerY = EntryY + 1;
+        int i = WIDTH - 1;
+        int j = HEIGHT - 1;
+
+        while (i > 0 && j > 0) {
+            if (world[i][j] == Tileset.FLOOR) {
+                world[i][j] = Tileset.PLAYER;
+                playerX = i;
+                playerY = j;
+                break;
+            }
+            i--;
+            j--;
+        }
+
 
         switchSetupMode();
     }
 
     // load a previous game
-    private void load() {
+    private TETile[][] load() {
         File f = new File(Path);
         try {
             FileInputStream fis = new FileInputStream(f);
             ObjectInputStream ois = new ObjectInputStream(fis);
-            world = (TETile [][]) ois.readObject();
+            world = (TETile[][]) ois.readObject();
             ois.close();
+            return world;
         } catch (FileNotFoundException e) {
-            System.out.println("No previous saved world found.");
+            System.out.println("No previously saved world found.");
             System.exit(0);
         } catch (IOException e) {
             System.out.println(e);
-            System.exit(1);
+            System.exit(0);
         } catch (ClassNotFoundException e) {
             System.out.println("Class TETile[][] not found.");
-            System.exit(1);
+            System.exit(0);
         }
 
-
+        // switch off setupMode
         switchSetupMode();
 
+        // rewrite playerX, playerY
         rewritePlayerLocation();
+        return null;
     }
 
     // rewrite playerX,playerY from saved game
@@ -213,18 +231,11 @@ public class Game {
                 return;
             default:
         }
-        if (playerX == EntryX && playerY == EntryY + 1) {
-            System.out.println("success");
-        }
     }
 
     // quit and save a current game
     private void saveAndQuit() {
-        // ignore if quit flag: has not inputted in advance
-        if (!quit) {
-            return;
-        }
-
+        // ignore if quit flag : hasn't been inputted in advance
         switchQuitMode();
 
         File f = new File(Path);
