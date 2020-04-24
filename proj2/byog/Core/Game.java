@@ -155,14 +155,13 @@ public class Game implements Serializable{
     }
 
     // load a previous game
-    private TETile[][] load() {
+    private void load() {
         File f = new File(Path);
         try {
             FileInputStream fis = new FileInputStream(f);
             ObjectInputStream ois = new ObjectInputStream(fis);
             world = (TETile[][]) ois.readObject();
             ois.close();
-            return world;
         } catch (FileNotFoundException e) {
             System.out.println("No previously saved world found.");
             System.exit(0);
@@ -179,7 +178,6 @@ public class Game implements Serializable{
 
         // rewrite playerX, playerY
         rewritePlayerLocation();
-        return null;
     }
 
     // rewrite playerX,playerY from saved game
