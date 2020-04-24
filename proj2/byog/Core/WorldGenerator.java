@@ -31,6 +31,13 @@ class WorldGenerator {
         random = new Random(seed);
     }
 
+    WorldGenerator(int w, int h, int X, int Y) {
+        width = w;
+        height = h;
+        initialX = X;
+        initialY = Y;
+        random = new Random();
+    }
     private void initialize() {
         world = new TETile[width][height];
 

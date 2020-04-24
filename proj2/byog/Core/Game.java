@@ -20,7 +20,7 @@ public class Game {
 
     /* Feel free to change the width and height. */
     public static final int WIDTH = 80;
-    public static final int HEIGHT = 30;
+    public static final int HEIGHT = 50;
     private static final int EntryX = 40;
     private static final int EntryY = 5;
 
@@ -45,20 +45,311 @@ public class Game {
     private int playerY;
 
     private void switchSetupMode() {
-
+        setup = !setup;
     }
 
     private void switchNewGameMode() {
-
+        newGame = !newGame;
     }
 
     private void switchQuitMode() {
+        quit = !quit;
+    }
 
+    /* Processes game according to a given single input String */
+    private void processInputString(String first) {
+        if (setup) {
+            switch (first) {
+                case "n":
+                    switchNewGameMode();
+                    break;
+                case "s":
+                    setupNewGame();
+                    break;
+                case "l":
+                    load();
+                    break;
+                case "q":
+                    System.exit(0);
+                    break;
+                default:
+                    try {
+                        Long.parseLong(first);
+                        seedString += first;
+                    } catch (NumberFormatException e) { // exit program if input is invalid
+                        System.out.println("Invalid input given" + first);
+                        System.exit(0);
+                    }
+                    break;
+            }
+        } else { // when the setup has been done
+            switch (first) {
+                // add my keyboard preference
+                case North:
+                case "o":
+                case East:
+                case "l":
+                case South:
+                case "n":
+                case West:
+                case "k":
+                    move(first);
+                    break;
+                case ":":
+                    switchQuitMode();
+                    break;
+                case "q":
+                    saveAndQuit();
+                    System.exit(0);
+                    break;
+                default:
+            }
+        }
+    }
+
+    // generate a random world and put a player in it
+    private void setupNewGame() {
+        // check if the input is valid
+        if (!newGame) {
+            String error = "Input string " + "\"S\" given, but no game has been initialized.\n" + "Please initialize game first by input string \"N\" and following random seed"
+                    + "numbers";
+            System.out.println(error);
+            System.exit(0);
+        }
+
+        switchNewGameMode();
+
+        // set up a random seed and generate a world according to it
+        WorldGenerator wg;
+        if (seedString.equals("")) {
+            wg = new WorldGenerator(WIDTH, HEIGHT, EntryX, EntryY);
+        } else {
+            long seed = Long.parseLong(seedString);
+            wg = new WorldGenerator(WIDTH, HEIGHT, EntryX, EntryY, seed);
+        }
+
+
+        world = wg.generate();
+
+        // setup a player
+        world[EntryX][EntryY + 1] = Tileset.PLAYER;
+        playerX = EntryX;
+        playerY = EntryY + 1;
+
+        switchSetupMode();
+    }
+
+    // load a previous game
+    private void load() {
+        File f = new File(Path);
+        try {
+            FileInputStream fis = new FileInputStream(f);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            world = (TETile [][]) ois.readObject();
+            ois.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("No previous saved world found.");
+            System.exit(0);
+        } catch (IOException e) {
+            System.out.println(e);
+            System.exit(1);
+        } catch (ClassNotFoundException e) {
+            System.out.println("Class TETile[][] not found.");
+            System.exit(1);
+        }
+
+
+        switchSetupMode();
+
+        rewritePlayerLocation();
+    }
+
+    // rewrite playerX,playerY from saved game
+    private void rewritePlayerLocation() {
+        for (int w = 0; w < WIDTH; w++) {
+            for (int h = 0; h < HEIGHT; h++) {
+                if (world[w][h].equals(Tileset.PLAYER)) {
+                    playerX = w;
+                    playerY = h;
+                }
+            }
+        }
+    }
+
+    // move a player according to input string
+    private void move(String input) {
+        switch (input) {
+            case North:
+            case "o":
+                if (world[playerX][playerY + 1].equals(Tileset.FLOOR)) {
+                    world[playerX][playerY + 1] = Tileset.PLAYER;
+                    world[playerX][playerY] = Tileset.FLOOR;
+                    playerY = playerY + 1;
+                }
+                return;
+            case East:
+            case "l":
+                if (world[playerX + 1][playerY].equals(Tileset.FLOOR)) {
+                    world[playerX + 1][playerY] = Tileset.PLAYER;
+                    world[playerX][playerY] = Tileset.FLOOR;
+                    playerX = playerX + 1;
+                }
+                return;
+            case South:
+            case "n":
+                if (world[playerX][playerY - 1].equals(Tileset.FLOOR)) {
+                    world[playerX][playerY - 1] = Tileset.PLAYER;
+                    world[playerX][playerY] = Tileset.FLOOR;
+                    playerY -= 1;
+                }
+                return;
+            case West:
+            case "k":
+                if (world[playerX - 1][playerY].equals(Tileset.FLOOR)) {
+                    world[playerX - 1][playerY] = Tileset.PLAYER;
+                    world[playerX][playerY] = Tileset.FLOOR;
+                    playerX -= 1;
+                }
+                return;
+            default:
+        }
+        if (playerX == EntryX && playerY == EntryY + 1) {
+            System.out.println("success");
+        }
+    }
+
+    // quit and save a current game
+    private void saveAndQuit() {
+        // ignore if quit flag: has not inputted in advance
+        if (!quit) {
+            return;
+        }
+
+        switchQuitMode();
+
+        File f = new File(Path);
+        try {
+            if (!f.exists()) {
+                f.createNewFile();
+            }
+            FileOutputStream fos = new FileOutputStream(f);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(world);
+            oos.close();
+        } catch (IOException e) {
+            System.out.println(e);
+            System.exit(1);
+        }
+    }
+
+
+
+    /* Processes game recursively according to a given input Strings */
+    private void processInput(String input) {
+        if (input == null) {
+            System.out.println("No input given.");
+            System.exit(0);
+        }
+
+        String first = Character.toString(input.charAt(0));
+        first = first.toLowerCase();
+        processInputString(first);
+
+        if (input.length() > 1) {
+            String rest = input.substring(1);
+            processInput(rest);
+        }
+    }
+
+    // process keyboard inputs in setup mode
+    private void processWelcome() {
+        // prepare welcome board window
+        StdDraw.enableDoubleBuffering();
+        StdDraw.setCanvasSize(WelcomeWidth, WelcomeHeight);
+        StdDraw.clear(StdDraw.BLACK);
+
+        while (true) {
+            if (StdDraw.hasNextKeyTyped()) {
+                String typed = Character.toString(StdDraw.nextKeyTyped());
+                processInput(typed);
+            }
+
+            renderWelcomeBoard();
+
+            if (!setup) { // break after setup has been done and enter game mode
+                break;
+            }
+        }
+        processGame();
+    }
+    // render welcome board in setup mode
+    private void renderWelcomeBoard() {
+        StdDraw.clear(StdDraw.BLACK);
+        StdDraw.setPenColor(StdDraw.WHITE);
+
+        // title
+        StdDraw.setFont(new Font("Arial", Font.BOLD, 40));
+        StdDraw.text(0.5, 0.8, "CS61B: BYoG");
+
+        // menu
+        StdDraw.setFont(new Font("Arial", Font.PLAIN, 20));
+        StdDraw.text(0.5, 0.5, "New Game: N");
+        StdDraw.text(0.5, 0.475, "Load Game: L");
+        StdDraw.text(0.5, 0.45, "Quit: Q");
+
+        // seed
+        if (newGame) {
+            StdDraw.text(0.5, 0.25, "Seed: " + seedString);
+            StdDraw.text(0.5, 0.225, "(Press S to start the game)");
+        }
+
+        StdDraw.show();
+        StdDraw.pause(100);
+    }
+
+    // process keyboard inputs in game mode
+    private void processGame() {
+        ter.initialize(WIDTH, HEIGHT);
+
+        while (true) {
+            if (StdDraw.hasNextKeyTyped()) {
+                String typed = Character.toString(StdDraw.nextKeyTyped());
+                processInput(typed);
+            }
+
+            renderGame();
+        }
+    }
+
+    // render the current state of the game
+    private void renderGame() {
+        renderWorld();
+        showTileOnHover();
+        StdDraw.pause(10);
+    }
+
+    private void renderWorld() {
+        StdDraw.setFont();
+        StdDraw.setPenColor();
+        ter.renderFrame(world);
+    }
+
+    // Draws text describing the Tile currently under the mouse pointer
+    private void showTileOnHover() {
+        int mouseX = (int) StdDraw.mouseX();
+        int mouseY = (int) StdDraw.mouseY();
+        TETile mouseTile = world[mouseX][mouseY];
+
+        StdDraw.setFont(new Font("Arial", Font.PLAIN, 15));
+        StdDraw.setPenColor(StdDraw.WHITE);
+        StdDraw.textLeft(1, HEIGHT - 1, mouseTile.description());
+        StdDraw.show();
     }
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
      */
     public void playWithKeyboard() {
+        processWelcome();
     }
 
     /**
@@ -78,8 +369,8 @@ public class Game {
         // and return a 2D tile representation of the world that would have been
         // drawn if the same inputs had been given to playWithKeyboard().
 
-        TETile[][] finalWorldFrame = null;
-        return finalWorldFrame;
+        processInput(input);
+        return world;
     }
 
     public static void main(String[] args) {
