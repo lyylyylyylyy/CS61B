@@ -53,19 +53,40 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
      */
     @Override
     public V get(K key) {
-        throw new UnsupportedOperationException();
+        return buckets[hash(key)].get(key);
     }
 
+    private void putHelper(K key, V value) {
+        int i  = hash(key);
+        size =  size - buckets[i].size();
+        buckets[i].put(key, value);
+        size = size + buckets[i].size;
+
+        if (loadFactor() > MAX_LF) {
+            ArrayMap<K, V>[] new_buckets = buckets;
+            buckets = new ArrayMap[buckets.length + 100];
+            for (int j = 0; j < this.buckets.length; j += 1) {
+                this.buckets[j] = new ArrayMap<>();
+            }
+
+            for (int k = 0; k < new_buckets.length; k++) {
+                for (K s : new_buckets[k]) {
+                    buckets[hash(s)].put(s, new_buckets[k].get(s));
+                }
+            }
+    }
+
+}
     /* Associates the specified value with the specified key in this map. */
     @Override
     public void put(K key, V value) {
-        throw new UnsupportedOperationException();
+        putHelper(key, value);
     }
 
     /* Returns the number of key-value mappings in this map. */
     @Override
     public int size() {
-        throw new UnsupportedOperationException();
+        return size;
     }
 
     //////////////// EVERYTHING BELOW THIS LINE IS OPTIONAL ////////////////
