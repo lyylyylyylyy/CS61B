@@ -107,6 +107,9 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
         // Throws an exception if index is invalid. DON'T CHANGE THIS LINE.
         validateSinkSwimArg(index);
 
+        if (index <=0 || index > size) {
+            return;
+        }
         if (index == 1) return;
 
         /** TODO: Your code here. */
@@ -123,6 +126,10 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
     private void sink(int index) {
         // Throws an exception if index is invalid. DON'T CHANGE THIS LINE.
         validateSinkSwimArg(index);
+
+        if (index <=0 || index > size) {
+            return;
+        }
 
         /** TODO: Your code here. */
         int minPriority = min(leftIndex(index), rightIndex(index));
